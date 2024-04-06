@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class Monitor Vote</title>
+<link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <h1>Class Monitor Vote</h1>
+    <p>Total Votes: <span id="total-votes-count">0</span></p>
+  <div class="add-vote">
+    <label for="name">Student Name:</label>
+    <input type="text" id="name" placeholder="Enter Name">
+    <label for="category">Choose Monitor:</label>
+    <select id="category">
+      <option value="">Select Category</option>
+      <option value="suresh">Suresh</option>
+      <option value="deepank">Deepank</option>
+      <option value="abhik">Abhik</option>
+    </select>
+    <button onclick="addVote()">Add Vote</button>
+  </div>
+  <div class="vote-list" id="suresh-list">
+    <h2>Suresh</h2>
+    <p id="suresh-total">Total: 0</p>
+  </div>
+  <div class="vote-list" id="deepank-list">
+    <h2>Deepank</h2>
+    <p id="deepank-total">Total: 0</p>
+  </div>
+  <div class="vote-list" id="abhik-list">
+    <h2>Abhik</h2>
+    <p id="abhik-total">Total: 0</p>
+  </div>
+  
+<script src="script.js"></script>
+</body>
+</html>
+
