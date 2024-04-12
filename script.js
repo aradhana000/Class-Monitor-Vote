@@ -1,82 +1,112 @@
-// Function to add a vote
-async function addVote() {
-    const name = document.getElementById('name').value;
-    const category = document.getElementById('category').value;
+function handleSubmit(event) {
+  event.preventDefault();
 
-    // Check if both name and category are selected
-    if (name && category) {
-        try {
-            const response = await fetch('https://crudcrud.com/api/b6986f86a27144fb9e674c277adcf62f/votesData', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name, category })
-            });
+  const name = event.target.name.value;
+  const monitor = event.target.monitor.value;
 
-            if (response.ok) {
-                // Increment total votes count
-                const totalVotesElement = document.getElementById('total-votes-count');
-                totalVotesElement.textContent = parseInt(totalVotesElement.textContent) + 1;
+  // Check if name or monitor is empty
+  if (!name || !monitor) {
+    alert('Please enter both name and select a monitor.');
+    return;
+  }
 
-                // Increment category total
-                const categoryTotalElement = document.getElementById(`${category}-total`);
-                categoryTotalElement.textContent = `Total: ${parseInt(categoryTotalElement.textContent.split(':')[1].trim()) + 1}`;
+  //Storing details in object
+  let obj = {
+    name,
+    monitor,
+  };
 
-                // Show vote in the list
-                showVotes(category, name);
-            } else {
-                console.error('Failed to add vote');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    } else {
-        alert('Please enter both name and select a category.');
-    }
-}
-sync function deleteVote(name, category) {
-    try {
-        const response = await fetch(`https://crudcrud.com/api/b6986f86a27144fb9e674c277adcf62f/votesData?&name=${name}&category=${category}`, {
-            method: 'DELETE'
-        });
+  //Posting the object to the API endpoint
+  axios
+    .post(
+      'https://crudcrud.com/api/b7f66d18b24e499a936f59daeeba4b75/Votes',
+      obj
+    )
+    .then((result) => {
+      console.log(result);
+      displayVotes(obj);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 
-        if (response.ok) {
-            // Decrement total votes count
-            const totalVotesElement = document.getElementById('total-votes-count');
-            totalVotesElement.textContent = parseInt(totalVotesElement.textContent) - 1;
-
-            // Decrement category total
-            const categoryTotalElement = document.getElementById(`${category}-total`);
-            categoryTotalElement.textContent = `Total: ${parseInt(categoryTotalElement.textContent.split(':')[1].trim()) - 1}`;
-
-            // Remove vote from the list
-            const voteList = document.getElementById(`${category}-list`);
-            const voteEntries = voteList.getElementsByClassName('vote-entry');
-            for (let i = 0; i < voteEntries.length; i++) {
-                const voteEntry = voteEntries[i];
-                //if (voteEntry.firstChild.textContent === name) {
-                    if (voteEntry.firstChild.textContent.trim().toLowerCase() === name.toLowerCase()) { 
-                    voteEntry.remove();
-                    break;
-                }
-            }
-        } else {
-            console.error('Failed to delete vote');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-    }
+  //Clearing the input fields
+  event.target.name.value = '';
+  event.target.monitor.value = '';
 }
 
-// Function to show votes in the list for the chosen category
-async function showVotes(category, name) {
-    const voteList = document.getElementById(`${category}-list`);
-    const voteEntry = document.createElement('div');
-    voteEntry.classList.add('vote-entry');
-    voteEntry.innerHTML = `
-        <p>${name}</p>
-        <button onclick="deleteVote('${category}', '${name}')">Delete</button>
-    `;
-    voteList.appendChild(voteEntry);
+//Function to display the data
+function displayVotes(obj) {
+  const suresh = document.getElementById('suresh');
+  const mahesh = document.getElementById('mahesh');
+  const ganesh = document.getElementById('ganesh');
+
+  const list = document.createElement('li');
+  list.innerHTML = obj.name;
+
+  const delBtn = document.createElement('button');
+  delBtn.innerHTML = '&#10008';
+  delBtn.onclick = () => {
+    delBtn.parentElement.parentElement.removeChild(delBtn.parentElement);
+    axios
+      .delete(
+        `https://crudcrud.com/api/b7f66d18b24e499a936f59daeeba4b75/Votes/${obj._id}`
+      )
+      .then((result) => {
+        console.log(result);
+        window.location.reload();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  list.appendChild(delBtn);
+
+  // Appending the list item to the correct category
+  if (obj.monitor === 'Suresh') suresh.appendChild(list);
+  else if (obj.monitor === 'Mahesh') mahesh.appendChild(list);
+  else if (obj.monitor === 'Ganesh') ganesh.appendChild(list);
 }
+
+// Displaying the data on browser window load
+window.addEventListener('DOMContentLoaded', () => {
+  axios
+    .get('https://crudcrud.com/api/b7f66d18b24e499a936f59daeeba4b75/Votes')
+    .then((result) => {
+      console.log(result);
+
+      // Displaying total votes
+      document.getElementById(
+        'total-votes'
+      ).innerHTML = `Total: ${result.data.length}`;
+
+      // Displaying total votes for individual monitors
+      let sureshTotal = 0;
+      let maheshTotal = 0;
+      let ganeshTotal = 0;
+      for (val of result.data) {
+        if (val.monitor === 'Suresh') sureshTotal++;
+        else if (val.monitor === 'Mahesh') maheshTotal++;
+        else if (val.monitor === 'Ganesh') ganeshTotal++;
+      }
+      document.getElementById(
+        'suresh-total'
+      ).innerHTML = `Total: ${sureshTotal}`;
+      document.getElementById(
+        'mahesh-total'
+      ).innerHTML = `Total: ${maheshTotal}`;
+      document.getElementById(
+        'ganesh-total'
+      ).innerHTML = `Total: ${ganeshTotal}`;
+
+      // Calling the function to display the data
+      for (val of result.data) displayVotes(val);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+});
+      
+
+                
